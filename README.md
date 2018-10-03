@@ -1,6 +1,6 @@
 # allocate_user_apps
 
-get user apps with small icon for an app drawer
+get user apps for an app drawer in a list of label, packageName, and small icon of 36 x 36 pixels and a method do start an app
 
 ## Getting Started
 
