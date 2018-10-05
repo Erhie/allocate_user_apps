@@ -16,7 +16,7 @@ class AllocateUserApps {
     return model;
   }
 
-  static Future<List> get AllApps async {
+  static Future<List> get allApps async {
     final List allmyApps = await _channel.invokeMethod('getAllApps');
     return allmyApps;
   }
