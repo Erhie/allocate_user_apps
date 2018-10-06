@@ -53,9 +53,11 @@ class AllocateUserAppsPlugin(registrar: Registrar): MethodCallHandler {
     if (call.method.equals("getAllApps")) {
       getAllApps(result)
     } else if (call.method.equals("launchApp")) {
-      //val packageNameJ: String = methodCall.argument("packageName")
-      val packageNameJ:String = call.argument("packageName")
-      launchApp(packageNameJ)
+      val packageNameJ:String? = call.argument("packageName")
+      if ( packageNameJ != null) {
+        val packageNameNn:String = packageNameJ!! //from nullable to not nullable
+        launchApp(packageNameNn)
+      }
       result.success(null)
     } else if (call.method.equals("getPlatformVersion")) {
       myPlatformVersion(result)
