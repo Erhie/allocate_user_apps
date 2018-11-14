@@ -5,12 +5,11 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.content.res.Configuration
-
+//import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.Log
-
 import org.json.JSONArray
 import org.json.JSONException
 
@@ -30,15 +29,13 @@ import java.util.Collections
 import android.util.DisplayMetrics
 import android.graphics.Canvas
 
-class AllocateUserAppsPlugin(registrar: Registrar): MethodCallHandler {
-
+class AppsAsStatelessPlugin(registrar: Registrar): MethodCallHandler {
   private val registrar: PluginRegistry.Registrar
 
   //constructor
   init {
     this.registrar = registrar
   }
-
 
   companion object {
     @JvmStatic
@@ -67,7 +64,6 @@ class AllocateUserAppsPlugin(registrar: Registrar): MethodCallHandler {
       result.notImplemented()
   }
 
-
   private fun launchApp(packageName: String) {
     val i = this.registrar.context().getPackageManager().getLaunchIntentForPackage(packageName)
     if (i != null)
@@ -81,18 +77,18 @@ class AllocateUserAppsPlugin(registrar: Registrar): MethodCallHandler {
   }
 
   fun Drawable.toBitmapDimension36(): Bitmap {
-
+    var maxsidelength:Int = 36
     val width = if (this.bounds.isEmpty) this.intrinsicWidth else this.bounds.width()
     val height = if (this.bounds.isEmpty) this.intrinsicHeight else this.bounds.height()
 
-    if ( width <= 36 && height <= 36 ) {
+    if ( width <= maxsidelength && height <= maxsidelength ) {
       if (this is BitmapDrawable) {
         //Log.v( "DEBUG ","Drawable is correct Bitmap width = "+width+" height = "+height)
         return this.bitmap
       }
     }
 
-    return Bitmap.createBitmap( 36, 36, Bitmap.Config.ARGB_8888).also {
+    return Bitmap.createBitmap( maxsidelength, maxsidelength, Bitmap.Config.ARGB_8888).also { //also
       val canvas = Canvas(it)
       this.setBounds(0, 0, canvas.width, canvas.height)
       this.draw(canvas)
@@ -109,33 +105,59 @@ class AllocateUserAppsPlugin(registrar: Registrar): MethodCallHandler {
 
     val _output = ArrayList<Map<String, Any>>()
 
+/* for test to have no apps
+    result.success(_output)
+    return
+*/
+
+    // var forCounter:Int = 0 //for test
+
     for (resInfo in resList) {
       try {
-
         val app:ApplicationInfo = packageManager.getApplicationInfo(
                 resInfo.activityInfo.packageName, PackageManager.GET_META_DATA)
-
         if (packageManager.getLaunchIntentForPackage(app.packageName) != null) {
+          val res: Resources = packageManager.getResourcesForApplication(app)
 
-          val res:Resources = packageManager.getResourcesForApplication(app)
-
+          if (res == null) {
+            Log.v("DEBUG ", "res was null!")
+          }
+          else
+          {
+/*          should be used in API level >= 22
           val icon:Drawable = res.getDrawableForDensity(app.icon,
                   DisplayMetrics.DENSITY_LOW,
                   null)
+*/
+            Log.v("DEBUG before getDrawableForDensity", "-")
+            // in next statement sometimes a exception rise
+            /*  This method was deprecated in API level 22, but we want also run on API 16 */
+            val icon: Drawable = res.getDrawableForDensity(app.icon,
+                    DisplayMetrics.DENSITY_LOW)
+            Log.v("DEBUG after getDrawableForDensity", "-")
 
-          val bitmapj:Bitmap = icon.toBitmapDimension36()
-          val iconData = convertToBytes(bitmapj,
-                  Bitmap.CompressFormat.PNG, 100)
+            val bitmapj: Bitmap = icon.toBitmapDimension36()
+            val iconData = convertToBytes(bitmapj,
+                    Bitmap.CompressFormat.PNG, 100) //quality is ignored for PNG-format
 
-          val current = HashMap<String, Any>()
-          current.put("label", app.loadLabel(packageManager).toString())
-          current.put("package", app.packageName)
-          current.put("icon", iconData)
+            val current = HashMap<String, Any>()
+            current.put("label", app.loadLabel(packageManager).toString())
 
-          _output.add(current)
+            Log.v("DEBUG ", "app.packageName = " + app.packageName)
+            current.put("package", app.packageName)
+
+            current.put("icon", iconData)
+
+            _output.add(current)
+            Log.v("DEBUG putted: ", "app.packageName = " + app.packageName)
+/*
+            if ( ++forCounter > 8 )
+              break; //test with only one app
+*/
+          }
         }
       } catch (e: Exception) {
-        e.printStackTrace()
+        // nothing is added to _output
       }
     }
     result.success(_output)
