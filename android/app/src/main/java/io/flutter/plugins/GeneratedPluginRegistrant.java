@@ -1,4 +1,4 @@
-package io.flutter.plugins;
+package android.app.src.main.java.io.flutter.plugins;
 
 import io.flutter.plugin.common.PluginRegistry;
 import org.erhy.allocateuserapps.AllocateUserAppsPlugin;
