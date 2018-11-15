@@ -1,6 +1,6 @@
 name: allocate_user_apps
 description: get user apps for an app drawer in a list of label, packageName, and small icon of 36 x 36 pixels and a method do start an app
-version: 1.2.0
+version: 1.2.1
 author: Erhy <erhy_video@kabsi.at>
 homepage: https://sites.google.com/view/erhy
 

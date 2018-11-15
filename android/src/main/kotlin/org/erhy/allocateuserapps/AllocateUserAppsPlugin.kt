@@ -29,7 +29,7 @@ import java.util.Collections
 import android.util.DisplayMetrics
 import android.graphics.Canvas
 
-class AppsAsStatelessPlugin(registrar: Registrar): MethodCallHandler {
+class AllocateUserAppsPlugin(registrar: Registrar): MethodCallHandler {
   private val registrar: PluginRegistry.Registrar
 
   //constructor
